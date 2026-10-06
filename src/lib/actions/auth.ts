@@ -5,11 +5,18 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  return "http://localhost:3000";
+}
+
 /** Inicia el flujo de OAuth con Google. */
 export async function signInWithGoogle(formData: FormData) {
   const next = (formData.get("next") as string | null) ?? "/";
   const supabase = await createClient();
-  const origin = (await headers()).get("origin") ?? "http://localhost:3000";
+  const origin = (await headers()).get("origin") ?? getBaseUrl();
 
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
